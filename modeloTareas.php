@@ -34,7 +34,22 @@ function getOrderedTasksListByDay($params) {
     }
 }
 
+function getTaskById($params) {
+    global $conexionBD;
+    $id = isset($params['id']) ? $params['id'] : null;
+    if ($id !== null) {
+        $sql = "SELECT * FROM tareas WHERE id = :id";
+        $stmt = $conexionBD->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        $tarea = $stmt->fetch(PDO::FETCH_ASSOC);
 
-
-
+        if ($tarea) {
+            return $tarea;
+        } else {
+            return array("message" => "No se encontró ninguna tarea con el ID proporcionado");
+        }
+    } else {
+        return array("error" => "ID de tarea no proporcionado");
+    }
+}
 ?>
