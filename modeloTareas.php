@@ -155,4 +155,23 @@ function updateTask($params) {
         return array("error" => "ID de tarea no proporcionado");
     }
 }
+
+function removeTask($params) {
+    global $conexionBD;
+    $id = isset($params['id']) ? $params['id'] : null;
+    if (!isset($id) || !is_numeric($id)) {
+        return array("error" => "ID de tarea no válido");
+    }
+    $sql = "DELETE FROM tareas WHERE id = :id";
+    $stmt = $conexionBD->prepare($sql);
+    $stmt->execute(['id' => $id]);
+    if ($stmt->rowCount() > 0) {
+        return array("message" => "Tarea eliminada correctamente");
+    } else {
+        return array("message" => "No se encontró ninguna tarea con el ID proporcionado");
+    }
+}
+
+
+
 ?>
