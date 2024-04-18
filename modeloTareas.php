@@ -125,4 +125,34 @@ function createTask() {
         return array("error" => "No se pudo crear la tarea");
     }
 }
+
+function updateTask($params) {
+    global $conexionBD;
+    $data = json_decode(file_get_contents('php://input'), true);
+    $id = isset($params['id']) ? $params['id'] : null;
+    if ($id !== null) {
+        $sql = "UPDATE tareas 
+                SET TITULO = :titulo, IMAGEN = :imagen, DESCRIPCION = :descripcion, CAT_ID = :cat_id, 
+                    LUGAR = :lugar, ESTADO = :estado 
+                WHERE id = :id";
+        $stmt = $conexionBD->prepare($sql);
+        $stmt->execute([
+            'id' => $id,
+            'titulo' => $data['titulo'],
+            'imagen' => $data['imagen'],
+            'descripcion' => $data['descripcion'],
+            'cat_id' => $data['cat_id'],
+            'lugar' => $data['lugar'],
+            'estado' => $data['estado']
+        ]);
+
+        if ($stmt->rowCount() > 0) {
+            return array("message" => "Tarea actualizada correctamente");
+        } else {
+            return array("message" => "No se encontró ninguna tarea con el ID proporcionado");
+        }
+    } else {
+        return array("error" => "ID de tarea no proporcionado");
+    }
+}
 ?>
