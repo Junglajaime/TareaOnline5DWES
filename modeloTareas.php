@@ -52,4 +52,29 @@ function getTaskById($params) {
         return array("error" => "ID de tarea no proporcionado");
     }
 }
+
+function getOrderedTasksList($params) {
+    global $conexionBD;
+    $pagina = isset($params['pagina']) ? intval($params['pagina']) : 1;
+    $tareasPorPagina = isset($params['tareasPorPag']) ? intval($params['tareasPorPag']) : 5;
+    $offset = ($pagina - 1) * $tareasPorPagina;
+
+    $orden = isset($params['orden']) ? strtoupper($params['orden']) : 'desc';
+
+    $sql = "SELECT * FROM tareas ORDER BY fecha $orden LIMIT :offset, :tareasPorPag";
+    $stmt = $conexionBD->prepare($sql);
+    $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+    $stmt->bindParam(':tareasPorPag', $tareasPorPagina, PDO::PARAM_INT);
+    $stmt->execute();
+    $tareas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $sqlTotal = "SELECT COUNT(*) AS total FROM tareas";
+    $stmtTotal = $conexionBD->query($sqlTotal);
+    $totalRegistros = $stmtTotal->fetch(PDO::FETCH_ASSOC)['total'];
+
+    return array(
+        "tareas" => $tareas,
+        "total_registros" => $totalRegistros
+    );
+}
 ?>
