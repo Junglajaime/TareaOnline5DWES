@@ -77,4 +77,52 @@ function getOrderedTasksList($params) {
         "total_registros" => $totalRegistros
     );
 }
+
+function getFinishedTasks() {
+    global $conexionBD;
+    $sql = "SELECT * FROM tareas WHERE ESTADO = 'Completada'";
+    $stmt = $conexionBD->query($sql);
+    $tareasCompletadas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if ($tareasCompletadas) {
+        return $tareasCompletadas;
+    } else {
+        return array("message" => "No se encontraron tareas completadas");
+    }
+}
+
+function getUnfinishedTasks() {
+    global $conexionBD;
+    $sql = "SELECT * FROM tareas WHERE ESTADO = 'Pendiente'";
+    $stmt = $conexionBD->query($sql);
+    $tareasPendientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if ($tareasPendientes) {
+        return $tareasPendientes;
+    } else {
+        return array("message" => "No se encontraron tareas pendientes");
+    }
+}
+
+function createTask() {
+    global $conexionBD;
+    $data = json_decode(file_get_contents('php://input'), true);
+    $sql = "INSERT INTO tareas (CAT_ID, TITULO, IMAGEN, DESCRIPCION, LUGAR, ESTADO) 
+            VALUES (:cat_id, :titulo, :imagen, :descripcion, :lugar, :estado)";
+    $stmt = $conexionBD->prepare($sql);
+    $stmt->execute([
+        'cat_id' => $data['cat_id'],
+        'titulo' => $data['titulo'],
+        'imagen' => $data['imagen'],
+        'descripcion' => $data['descripcion'],
+        'lugar' => $data['lugar'],
+        'estado' => $data['estado']
+    ]);
+
+    if ($stmt->rowCount() > 0) {
+        return array("message" => "Tarea creada correctamente");
+    } else {
+        return array("error" => "No se pudo crear la tarea");
+    }
+}
 ?>
